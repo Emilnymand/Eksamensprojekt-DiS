@@ -6,13 +6,13 @@ import java.security.NoSuchAlgorithmException;
 import org.bouncycastle.util.encoders.Hex;
 
 public final class Hashing {
-  private String salt;
+  private String salt = "wsed5rftgyh";
 
   // TODO: You should add a salt and make this secure : Fixed
 
   public String hashWithSalt(String str){
 
-    String saltedstr = salt + str;
+    String saltedstr = str+salt ;
     return md5(saltedstr);
   }
 
