@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import model.User;
+import utils.Hashing;
 import utils.Log;
 
 public class UserController {
@@ -97,6 +98,7 @@ public class UserController {
 
     // Write in log that we've reach this step
     Log.writeLog(UserController.class.getName(), user, "Actually creating a user in DB", 0);
+    Hashing hashing = new Hashing();
 
     // Set creation time for user.
     user.setCreatedTime(System.currentTimeMillis() / 1000L);
@@ -114,7 +116,7 @@ public class UserController {
             + "', '"
             + user.getLastname()
             + "', '"
-            + user.getPassword()
+            + hashing.hashWithSalt(user.getPassword())
             + "', '"
             + user.getEmail()
             + "', "
