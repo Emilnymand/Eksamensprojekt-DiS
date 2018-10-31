@@ -1,5 +1,6 @@
 package controllers;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -10,6 +11,7 @@ import utils.Log;
 public class UserController {
 
   private static DatabaseController dbCon;
+  private static PreparedStatement deleteUser;
 
   public UserController() {
     dbCon = new DatabaseController();
@@ -133,5 +135,37 @@ public class UserController {
 
     // Return user
     return user;
+  }
+
+  public boolean deleteUser(int userId) throws SQLException {
+
+    Log.writeLog(UserController.class.getName(),userId,"Deleting a user in DB",0);
+
+    //Check for DB Connection
+    if (dbCon == null) {
+      dbCon = new DatabaseController();
+    }
+
+    // Build the query for DB
+    String userToDelete = "DELETE * FROM user where id=" + userId;
+
+    // Actually do the query
+    ResultSet rsDelete = dbCon.query(userToDelete);
+    User user = null;
+
+    try {
+
+      deleteUser.setInt(1,userId);
+
+      int rowsAffected = deleteUser.executeUpdate();
+
+      if (rowsAffected == 1){
+        return true;
+      }
+    } catch (SQLException sqlExeption) {
+      sqlExeption.printStackTrace();
+    }
+    return false;
+
   }
 }

@@ -94,14 +94,19 @@ public class UserEndpoints {
   }
 
   // TODO: Make the system able to delete users
-  public Response deleteUser(String x) {
+  @POST
+  @Path("/")
+  @Consumes(MediaType.APPLICATION_JSON)
+  public Response deleteUser(int id) {
+
+    User
 
     // Return a response with status 200 and JSON as type
     return Response.status(400).entity("Endpoint not implemented yet").build();
   }
 
   // TODO: Make the system able to update users
-  public Response updateUser(String x) {
+  public Response updateUser(String body) {
 
     // Return a response with status 200 and JSON as type
     return Response.status(400).entity("Endpoint not implemented yet").build();
