@@ -95,14 +95,21 @@ public class UserEndpoints {
 
   // TODO: Make the system able to delete users
   @POST
-  @Path("/")
-  @Consumes(MediaType.APPLICATION_JSON)
-  public Response deleteUser(int id) {
+  @Path("/delete/{delete}")
+  public Response deleteUser(@PathParam("delete") int idUser) {
 
-    User
+    UserController.deleteUser(idUser);
 
-    // Return a response with status 200 and JSON as type
-    return Response.status(400).entity("Endpoint not implemented yet").build();
+    // Write to log that we are here
+    Log.writeLog(this.getClass().getName(),idUser, "Ready to delete user", 0);
+
+
+    if (idUser !=0) {
+      return Response.status(200).entity("User with specified ID " + idUser + " has been deleted").build();
+    } else {
+      // Return a response with status 200 and JSON as type
+      return Response.status(400).entity("Delete of user failed").build();
+    }
   }
 
   // TODO: Make the system able to update users
