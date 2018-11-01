@@ -11,7 +11,6 @@ import utils.Log;
 public class UserController {
 
   private static DatabaseController dbCon;
-  private static PreparedStatement deleteUser;
 
   public UserController() {
     dbCon = new DatabaseController();
@@ -35,12 +34,12 @@ public class UserController {
       // Get first object, since we only have one
       if (rs.next()) {
         user =
-            new User(
-                rs.getInt("id"),
-                rs.getString("first_name"),
-                rs.getString("last_name"),
-                rs.getString("password"),
-                rs.getString("email"));
+                new User(
+                        rs.getInt("id"),
+                        rs.getString("first_name"),
+                        rs.getString("last_name"),
+                        rs.getString("password"),
+                        rs.getString("email"));
 
         // return the create object
         return user;
@@ -78,12 +77,12 @@ public class UserController {
       // Loop through DB Data
       while (rs.next()) {
         User user =
-            new User(
-                rs.getInt("id"),
-                rs.getString("first_name"),
-                rs.getString("last_name"),
-                rs.getString("password"),
-                rs.getString("email"));
+                new User(
+                        rs.getInt("id"),
+                        rs.getString("first_name"),
+                        rs.getString("last_name"),
+                        rs.getString("password"),
+                        rs.getString("email"));
 
         // Add element to list
         users.add(user);
@@ -113,22 +112,22 @@ public class UserController {
     // Insert the user in the DB
     // TODO: Hash the user password before saving it.
     int userID = dbCon.insert(
-        "INSERT INTO user(first_name, last_name, password, email, created_at) VALUES('"
-            + user.getFirstname()
-            + "', '"
-            + user.getLastname()
-            + "', '"
-            + hashing.hashWithSalt(user.getPassword())
-            + "', '"
-            + user.getEmail()
-            + "', "
-            + user.getCreatedTime()
-            + ")");
+            "INSERT INTO user(first_name, last_name, password, email, created_at) VALUES('"
+                    + user.getFirstname()
+                    + "', '"
+                    + user.getLastname()
+                    + "', '"
+                    + hashing.hashWithSalt(user.getPassword())
+                    + "', '"
+                    + user.getEmail()
+                    + "', "
+                    + user.getCreatedTime()
+                    + ")");
 
     if (userID != 0) {
       //Update the userid of the user before returning
       user.setId(userID);
-    } else{
+    } else {
       // Return null if user has not been inserted into database
       return null;
     }
@@ -137,35 +136,19 @@ public class UserController {
     return user;
   }
 
-  public boolean deleteUser(int userId) throws SQLException {
+  public static void deleteUser(int userId) {
 
-    Log.writeLog(UserController.class.getName(),userId,"Deleting a user in DB",0);
+    Log.writeLog(UserController.class.getName(), userId,"Deleting user in DB",0);
 
     //Check for DB Connection
     if (dbCon == null) {
       dbCon = new DatabaseController();
     }
 
-    // Build the query for DB
-    String userToDelete = "DELETE * FROM user where id=" + userId;
+    // Constructing our SQL
+    String sql = "DELETE FROM user where id=" + userId;
 
-    // Actually do the query
-    ResultSet rsDelete = dbCon.query(userToDelete);
-    User user = null;
-
-    try {
-
-      deleteUser.setInt(1,userId);
-
-      int rowsAffected = deleteUser.executeUpdate();
-
-      if (rowsAffected == 1){
-        return true;
-      }
-    } catch (SQLException sqlExeption) {
-      sqlExeption.printStackTrace();
-    }
-    return false;
-
+    dbCon.deleteUser(sql);
   }
+
 }

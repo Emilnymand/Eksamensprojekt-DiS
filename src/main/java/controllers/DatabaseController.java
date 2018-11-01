@@ -110,4 +110,25 @@ public class DatabaseController {
     // Return the resultset which at this point will be null
     return result;
   }
+
+
+  //Kald den som noget specifikt istedet for "deleteUser", så den både kan bruges som delete og update user. og kald statement noget andet
+  public void deleteUser(String sql){
+
+    // Check that we have connection
+    if (connection == null)
+      connection = getConnection();
+
+    try {
+      PreparedStatement statement = connection.prepareStatement(sql);
+
+      //Execute query
+      statement.executeUpdate();
+
+    } catch (SQLException e) {
+      System.out.println(e.getMessage());
+    }
+
+  }
+
 }
