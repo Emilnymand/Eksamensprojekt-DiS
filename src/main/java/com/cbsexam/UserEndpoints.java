@@ -93,7 +93,7 @@ public class UserEndpoints {
     return Response.status(400).entity("Endpoint not implemented yet").build();
   }
 
-  // TODO: Make the system able to delete users
+  // TODO: Make the system able to delete users - Fixed
   @POST
   @Path("/delete/{delete}")
   public Response deleteUser(@PathParam("delete") int idUser) {
@@ -112,8 +112,12 @@ public class UserEndpoints {
     }
   }
 
+  @POST
+  @Path("/update/{update}")
   // TODO: Make the system able to update users
-  public Response updateUser(String body) {
+  public Response updateUser(@PathParam("update") String body) {
+
+
 
     // Return a response with status 200 and JSON as type
     return Response.status(400).entity("Endpoint not implemented yet").build();

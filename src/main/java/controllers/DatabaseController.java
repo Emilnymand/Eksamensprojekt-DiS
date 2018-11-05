@@ -113,7 +113,7 @@ public class DatabaseController {
 
 
   //Kald den som noget specifikt istedet for "deleteUser", så den både kan bruges som delete og update user. og kald statement noget andet
-  public void deleteUser(String sql){
+  public void updateDB(String sql){
 
     // Check that we have connection
     if (connection == null)
