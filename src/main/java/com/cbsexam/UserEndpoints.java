@@ -98,6 +98,7 @@ public class UserEndpoints {
   @Path("/delete/{delete}")
   public Response deleteUser(@PathParam("delete") int idUser) {
 
+
     UserController.deleteUser(idUser);
 
     // Write to log that we are here
@@ -114,17 +115,20 @@ public class UserEndpoints {
 
   @POST
   @Path("/update/{update}")
+  @Consumes(MediaType.APPLICATION_JSON)
   // TODO: Make the system able to update users
-  public Response updateUser(@PathParam("update") int userIdToUpdate, User userUpdate) {
+  public Response updateUser(@PathParam("update") int userIdToUpdate, String userUpdate) {
 
-    UserController.updateUser(userIdToUpdate, userUpdate);
+    User userUpdates = new Gson().fromJson(userUpdate, User.class);
+
+    UserController.updateUser(userIdToUpdate, userUpdates);
 
     // Write to log that we are here
     Log.writeLog(this.getClass().getName(),userIdToUpdate, "Ready to update user", 0);
 
     if (userIdToUpdate !=0) {
       // Return a response with status 200 and JSON as type
-      return Response.status(200).entity("User with specified ID" + userIdToUpdate + "is ready to update").build();
+      return Response.status(200).entity("User with specified ID " + userIdToUpdate + " has been succesfully updated").build();
     } else {
       return Response.status(400).entity("User to update failed").build();
     }

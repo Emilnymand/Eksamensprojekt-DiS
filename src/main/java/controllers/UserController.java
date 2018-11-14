@@ -179,15 +179,15 @@ public class UserController {
       }
 
       //constructing our SQL
-    String sql = "UPDATE FROM user(first_name, last_name, password, email) VALUES('"
-            + currentUser.getFirstname()
-            + "', '"
-            + currentUser.getLastname()
-            + "', '"
-            + hashing.hashWithSalt(currentUser.getPassword())
-            + "', '"
-            + currentUser.getEmail()
-            + ")";
+    String sql = "UPDATE user SET first_name = '"
+            + userUpdate.getFirstname()
+            + "', last_name = '"
+            + userUpdate.getLastname()
+            + "', password= '"
+            + hashing.hashWithSalt(userUpdate.getPassword())
+            + "', email = '"
+            + userUpdate.getEmail()
+            + "' Where id = " +userIdToUpdate;
 
       dbCon.updateDB(sql);
 
