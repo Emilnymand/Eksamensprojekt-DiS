@@ -136,6 +136,7 @@ public class UserController {
     return user;
   }
 
+  // Emil - Deleting specific user by ID
   public static void deleteUser(int userId) {
 
     Log.writeLog(UserController.class.getName(), userId,"Deleting user in DB",0);
@@ -151,17 +152,44 @@ public class UserController {
     dbCon.updateDB(sql);
   }
 
-  public static User updateUser(User user) {
+  // Emil - Updating specific user by ID
+  public static void updateUser(int userIdToUpdate , User userUpdate) {
 
-      Log.writeLog(UserController.class.getName(), user, "Updating user in DB", 0);
-//      Hashing hashing = new Hashing();
+      Log.writeLog(UserController.class.getName(), userIdToUpdate, "Updating user in DB", 0);
+      Hashing hashing = new Hashing();
 
       //Check for DB Connection
       if (dbCon == null) {
           dbCon = new DatabaseController();
       }
 
-      
+      User currentUser = UserController.getUser(userIdToUpdate);
+
+      if (userUpdate.getFirstname() == null) {
+        userUpdate.setFirstname(currentUser.getFirstname());
+      }
+      if (userUpdate.getLastname() == null) {
+        userUpdate.setLastname(currentUser.getLastname());
+      }
+      if (userUpdate.getPassword() == null) {
+        userUpdate.setPassword(currentUser.getPassword());
+      }
+      if (userUpdate.getEmail() == null) {
+        userUpdate.setEmail(currentUser.getEmail());
+      }
+
+      //constructing our SQL
+    String sql = "UPDATE FROM user(first_name, last_name, password, email) VALUES('"
+            + currentUser.getFirstname()
+            + "', '"
+            + currentUser.getLastname()
+            + "', '"
+            + hashing.hashWithSalt(currentUser.getPassword())
+            + "', '"
+            + currentUser.getEmail()
+            + ")";
+
+      dbCon.updateDB(sql);
 
   }
 

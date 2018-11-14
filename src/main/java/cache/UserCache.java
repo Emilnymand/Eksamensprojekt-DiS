@@ -19,7 +19,7 @@ public class UserCache {
     private long created;
 
     public  UserCache(){
-        this.ttl = Config.getUserTtl();
+        this.ttl = Config.getCacheTtl();
     }
 
     public ArrayList<User> getUsers(Boolean forceUpdate) {

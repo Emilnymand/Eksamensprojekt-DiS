@@ -105,9 +105,9 @@ public class UserEndpoints {
 
 
     if (idUser !=0) {
+      // Return a response with status 200 and JSON as type
       return Response.status(200).entity("User with specified ID " + idUser + " has been deleted").build();
     } else {
-      // Return a response with status 200 and JSON as type
       return Response.status(400).entity("Delete of user failed").build();
     }
   }
@@ -115,11 +115,18 @@ public class UserEndpoints {
   @POST
   @Path("/update/{update}")
   // TODO: Make the system able to update users
-  public Response updateUser(@PathParam("update") String body) {
+  public Response updateUser(@PathParam("update") int userIdToUpdate, User userUpdate) {
 
+    UserController.updateUser(userIdToUpdate, userUpdate);
 
+    // Write to log that we are here
+    Log.writeLog(this.getClass().getName(),userIdToUpdate, "Ready to update user", 0);
 
-    // Return a response with status 200 and JSON as type
-    return Response.status(400).entity("Endpoint not implemented yet").build();
+    if (userIdToUpdate !=0) {
+      // Return a response with status 200 and JSON as type
+      return Response.status(200).entity("User with specified ID" + userIdToUpdate + "is ready to update").build();
+    } else {
+      return Response.status(400).entity("User to update failed").build();
+    }
   }
 }

@@ -15,7 +15,9 @@ public class OrderCache {
 
     private long created;
 
-    public OrderCache(){this.ttl = Config.getOrderTtl();}
+    public OrderCache() {
+        this.ttl = Config.getCacheTtl();
+    }
 
     public ArrayList<Order> getOrders(boolean forceUpdate) {
 
