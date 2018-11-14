@@ -151,15 +151,18 @@ public class UserController {
     dbCon.updateDB(sql);
   }
 
-//  public static User updateUser(int userId) {
-//
-//      Log.writeLog(UserController.class.getName(), userId, "Updating user in DB", 0);
+  public static User updateUser(User user) {
+
+      Log.writeLog(UserController.class.getName(), user, "Updating user in DB", 0);
 //      Hashing hashing = new Hashing();
-//
-//      //Check for DB Connection
-//      if (dbCon == null) {
-//          dbCon = new DatabaseController();
-//      }
-//  }
+
+      //Check for DB Connection
+      if (dbCon == null) {
+          dbCon = new DatabaseController();
+      }
+
+      
+
+  }
 
 }

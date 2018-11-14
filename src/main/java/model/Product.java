@@ -1,5 +1,7 @@
 package model;
 
+import java.util.ArrayList;
+
 public class Product {
 
   public int id;
@@ -9,6 +11,7 @@ public class Product {
   private String description;
   private int stock;
   private long createdTime;
+  private ArrayList<Product> products;
 
   public Product(int id, String name, String sku, float price, String description, int stock) {
     this.id = id;
@@ -17,6 +20,7 @@ public class Product {
     this.price = price;
     this.description = description;
     this.stock = stock;
+    this.products = new ArrayList<>();
   }
 
   public int getId() {
@@ -73,5 +77,9 @@ public class Product {
 
   public void setStock(int stock) {
     this.stock = stock;
+  }
+
+  public ArrayList<Product> getProducts() {
+    return products;
   }
 }
