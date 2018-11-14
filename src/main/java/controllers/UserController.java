@@ -190,7 +190,6 @@ public class UserController {
             + "' Where id = " +userIdToUpdate;
 
       dbCon.updateDB(sql);
-
   }
 
 }
