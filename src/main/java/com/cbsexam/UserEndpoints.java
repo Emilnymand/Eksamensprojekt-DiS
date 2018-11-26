@@ -1,6 +1,8 @@
 package com.cbsexam;
 
 import cache.UserCache;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.google.gson.Gson;
 import controllers.UserController;
 import java.util.ArrayList;
@@ -13,6 +15,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import model.User;
 import utils.Encryption;
+import utils.Hashing;
 import utils.Log;
 
 @Path("user")
@@ -90,50 +93,90 @@ public class UserEndpoints {
   @POST
   @Path("/login")
   @Consumes(MediaType.APPLICATION_JSON)
-  public Response loginUser(String x) {
+  public Response loginUser(String body) {
+
+    User userSignedIn = new Gson().fromJson(body, User.class);
+    Hashing hashing = new Hashing();
+
+    User userInDB = UserController.getUserByEmail(userSignedIn.getEmail());
+    String json = new Gson().toJson(userInDB);
+
 
     // Return a response with status 200 and JSON as type
-    return Response.status(400).entity("Endpoint not implemented yet").build();
+    if (userInDB.getEmail() != null && userSignedIn.getEmail().equals(userInDB.getEmail()) && hashing.hashWithSalt(userSignedIn.getPassword()).equals((userInDB.getPassword()))) {
+
+      return Response.status(200).entity("Login succesfull" + json).build();
+    } else {
+      return Response.status(400).entity("Login failed. Try again").build();
+    }
   }
 
   // TODO: Make the system able to delete users - Fixed
   @POST
   @Path("/delete/{delete}")
-  public Response deleteUser(@PathParam("delete") int idUser) {
-
-
-    UserController.deleteUser(idUser);
+  public Response deleteUser(@PathParam("delete") int idUser, String body) {
 
     // Write to log that we are here
     Log.writeLog(this.getClass().getName(),idUser, "Ready to delete user", 0);
 
+    try {
+      User userToDelete = new Gson().fromJson(body, User.class);
 
-    if (idUser !=0) {
-      // Return a response with status 200 and JSON as type
-      return Response.status(200).entity("User with specified ID " + idUser + " has been deleted").build();
-    } else {
+      //Gemmer det decodede token i jwt
+      DecodedJWT jwt = JWT.decode(userToDelete.getToken());
+
+      if (jwt.getClaim("ID").asInt() == idUser) {
+        UserController.deleteUser(idUser);
+        userCache.getUsers(true);
+
+        // Return a response with status 200 and JSON as type
+        return Response.status(200).entity("User with specified ID " + idUser + " has been deleted").build();
+      }
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
       return Response.status(400).entity("Delete of user failed").build();
     }
+    //Hvis brugeren ikke findes
+    return null;
   }
 
   @POST
   @Path("/update/{update}")
   @Consumes(MediaType.APPLICATION_JSON)
-  // TODO: Make the system able to update users
+  // TODO: Make the system able to update users - Fixed
   public Response updateUser(@PathParam("update") int userIdToUpdate, String userUpdate) {
 
-    User userUpdates = new Gson().fromJson(userUpdate, User.class);
+    try {
+      User userUpdates = new Gson().fromJson(userUpdate, User.class);
 
-    UserController.updateUser(userIdToUpdate, userUpdates);
+      UserController.updateUser(userIdToUpdate, userUpdates);
 
-    // Write to log that we are here
-    Log.writeLog(this.getClass().getName(),userIdToUpdate, "Ready to update user", 0);
+      DecodedJWT jwt = JWT.decode(userUpdates.getToken());
 
-    if (userIdToUpdate !=0) {
-      // Return a response with status 200 and JSON as type
-      return Response.status(200).entity("User with specified ID " + userIdToUpdate + " has been succesfully updated").build();
-    } else {
-      return Response.status(400).entity("User to update failed").build();
+      // Write to log that we are here
+      Log.writeLog(this.getClass().getName(), userIdToUpdate, "Ready to update user", 0);
+
+      if (userIdToUpdate != 0 && jwt.getClaim("id").asInt() == userIdToUpdate) {
+
+//        if (userUpdates.getFirstname() == null) {
+//          .setFirstname(userUpdates.getFirstname());
+//        }
+//        if (userUpdates.getLastname() == null) {
+//          userUpdates.setLastname(currentUser.getLastname());
+//        }
+//        if (userUpdates.getPassword() == null) {
+//          userUpdates.setPassword(currentUser.getPassword());
+//        }
+//        if (userUpdates.getEmail() == null) {
+//          userUpdates.setEmail(currentUser.getEmail());
+//        }
+        // Return a response with status 200 and JSON as type
+        return Response.status(200).entity("User with specified ID " + userIdToUpdate + " has been succesfully updated").build();
+      }
+      } catch (Exception e) {
+      System.out.println(e.getMessage());
+      return Response.status(400).entity("User update failed").build();
     }
+    return null;
   }
 }

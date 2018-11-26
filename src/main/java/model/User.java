@@ -8,13 +8,16 @@ public class User {
   public String email;
   private String password;
   private long createdTime;
+  private String token;
 
-  public User(int id, String firstname, String lastname, String password, String email) {
+  public User(int id, String firstname, String lastname, String password, String email, long createdTime) {
     this.id = id;
     this.firstname = firstname;
     this.lastname = lastname;
     this.password = password;
     this.email = email;
+    this.createdTime = createdTime;
+    this.token = null;
   }
 
   public int getId() {
@@ -62,6 +65,13 @@ public class User {
   }
 
   public void setCreatedTime(long createdTime) {
+
     this.createdTime = createdTime;
+  }
+
+  public void setToken(String token) {this.token = token;}
+
+  public String getToken() {
+    return token;
   }
 }

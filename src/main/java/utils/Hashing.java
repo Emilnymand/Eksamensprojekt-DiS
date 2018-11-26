@@ -6,13 +6,18 @@ import java.security.NoSuchAlgorithmException;
 import org.bouncycastle.util.encoders.Hex;
 
 public final class Hashing {
-  private String salt = "wsed5rftgyh";
+
+  private String generateSalt;
+
+  //Emil - genering af nyt salt
+  public void generateSalt (String generateSalt) {
+    this.generateSalt = generateSalt;
+  }
 
   // TODO: You should add a salt and make this secure : Fixed
-
+  // Emil - Static so all classes can acces it.
   public String hashWithSalt(String str){
-
-    String saltedstr = str+salt ;
+    String saltedstr = str + generateSalt;
     return md5(saltedstr);
   }
 

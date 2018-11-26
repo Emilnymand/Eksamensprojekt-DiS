@@ -1,9 +1,14 @@
 package controllers;
 
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTCreationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import model.User;
 import utils.Hashing;
 import utils.Log;
@@ -39,7 +44,8 @@ public class UserController {
                         rs.getString("first_name"),
                         rs.getString("last_name"),
                         rs.getString("password"),
-                        rs.getString("email"));
+                        rs.getString("email"),
+                        rs.getLong("created_at")); //Emil - Added created_at, to a timestamp in db.
 
         // return the create object
         return user;
@@ -82,7 +88,8 @@ public class UserController {
                         rs.getString("first_name"),
                         rs.getString("last_name"),
                         rs.getString("password"),
-                        rs.getString("email"));
+                        rs.getString("email"),
+                        rs.getLong("created_at")); //Emil - Added created_at, to a timestamp in db.
 
         // Add element to list
         users.add(user);
@@ -109,6 +116,7 @@ public class UserController {
       dbCon = new DatabaseController();
     }
 
+    hashing.generateSalt(String.valueOf(user.getCreatedTime())); //Så der tildeles et unikt timestamp
     // Insert the user in the DB
     // TODO: Hash the user password before saving it.
     int userID = dbCon.insert(
@@ -136,6 +144,53 @@ public class UserController {
     return user;
   }
 
+  //Emil - Login method
+  public static User getUserByEmail(String email) {
+
+    // Check for connection
+    if (dbCon == null) {
+      dbCon = new DatabaseController();
+    }
+
+    // Build the query for DB
+    String sql = "SELECT * FROM user where email = '" + email + "'";
+
+    // Actually do the query
+    ResultSet rs = dbCon.query(sql);
+    User user = null;
+
+    try {
+      // Get first object, since we only have one
+      if (rs.next()) {
+        user =
+                new User(
+                        rs.getInt("id"),
+                        rs.getString("first_name"),
+                        rs.getString("last_name"),
+                        rs.getString("password"),
+                        rs.getString("email"),
+                        rs.getLong("created_at")); //Emil - Added created_at, to a timestamp in db.
+
+        Algorithm algorithm = Algorithm.HMAC256("Emil");
+        //opretter en token, så man kan finde et ID ud fra en token.
+        String token = JWT.create().withClaim("ID",user.getId()).sign(algorithm);
+        user.setToken(token);
+
+        // return the create object
+        return user;
+      } else {
+        System.out.println("No user found");
+      }
+    } catch (SQLException ex) {
+      System.out.println(ex.getMessage());
+    }
+
+    // Return null
+    return user;
+
+
+  }
+
   // Emil - Deleting specific user by ID
   public static void deleteUser(int userId) {
 
@@ -151,6 +206,7 @@ public class UserController {
 
     dbCon.updateDB(sql);
   }
+
 
   // Emil - Updating specific user by ID
   public static void updateUser(int userIdToUpdate , User userUpdate) {

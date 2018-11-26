@@ -11,6 +11,7 @@ import utils.Config;
 public class DatabaseController {
 
   private static Connection connection;
+  private boolean autoCommit;
 
   public DatabaseController() {
     connection = getConnection();
@@ -25,13 +26,13 @@ public class DatabaseController {
     try {
       // Set the dataabase connect with the data from the config
       String url =
-          "jdbc:mysql://"
-              + Config.getDatabaseHost()
-              + ":"
-              + Config.getDatabasePort()
-              + "/"
-              + Config.getDatabaseName()
-              + "?serverTimezone=CET";
+              "jdbc:mysql://"
+                      + Config.getDatabaseHost()
+                      + ":"
+                      + Config.getDatabasePort()
+                      + "/"
+                      + Config.getDatabaseName()
+                      + "?serverTimezone=CET";
 
       String user = Config.getDatabaseUsername();
       String password = Config.getDatabasePassword();
@@ -93,7 +94,7 @@ public class DatabaseController {
     try {
       // Build the statement up in a safe way
       PreparedStatement statement =
-          connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+              connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 
       // Execute query
       result = statement.executeUpdate();
@@ -113,7 +114,7 @@ public class DatabaseController {
 
 
   //Kald den som noget specifikt istedet for "deleteUser", så den både kan bruges som delete og update user. og kald statement noget andet
-  public void updateDB(String sql){
+  public void updateDB(String sql) {
 
     // Check that we have connection
     if (connection == null)
@@ -130,5 +131,4 @@ public class DatabaseController {
     }
 
   }
-
 }
