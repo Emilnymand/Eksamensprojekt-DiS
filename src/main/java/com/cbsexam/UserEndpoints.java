@@ -31,17 +31,22 @@ public class UserEndpoints {
   @Path("/{idUser}")
   public Response getUser(@PathParam("idUser") int idUser) {
 
-    // Use the ID to get the user from the controller.
-    User user = UserController.getUser(idUser);
+    try {
+      // Use the ID to get the user from the controller.
+      User user = UserController.getUser(idUser);
 
-    // TODO: Add Encryption to JSON : Fixed
-    // Convert the user object to json in order to return the object
-    String json = new Gson().toJson(user);
-    json = Encryption.encryptDecryptXOR(json);
+      // TODO: Add Encryption to JSON : Fixed
+      // Convert the user object to json in order to return the object
+      String json = new Gson().toJson(user);
+      json = Encryption.encryptDecryptXOR(json);
 
-    // Return the user with the status code 200
-    // TODO: What should happen if something breaks down?
-    return Response.status(200).type(MediaType.APPLICATION_JSON_TYPE).entity(json).build();
+      // Return the user with the status code 200
+      // TODO: What should happen if something breaks down? - FIXED
+      return Response.status(200).type(MediaType.APPLICATION_JSON_TYPE).entity(json).build();
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
+      return Response.status(400).entity("Couldn't get user").build();
+    }
   }
 
   /** @return Responses */
@@ -49,21 +54,24 @@ public class UserEndpoints {
   @Path("/")
   public Response getUsers() {
 
-    // Write to log that we are here
-    Log.writeLog(this.getClass().getName(), this, "Get all users", 0);
+    try {
+      // Write to log that we are here
+      Log.writeLog(this.getClass().getName(), this, "Get all users", 0);
 
-    // Get a list of users from UserCache
-    ArrayList<User> users = userCache.getUsers(false);
+      // Get a list of users from UserCache
+      ArrayList<User> users = userCache.getUsers(false);
 
-    // TODO: Add Encryption to JSON : Fixed
-    // Transfer users to json in order to return it to the user
-    String json = new Gson().toJson(users);
-    json = Encryption.encryptDecryptXOR(json);
+      // TODO: Add Encryption to JSON : Fixed
+      // Transfer users to json in order to return it to the user
+      String json = new Gson().toJson(users);
+      json = Encryption.encryptDecryptXOR(json);
 
-    //json = Encryption.encryptDecryptXOR(json); //Dekrypteringsmulighed
-
-    // Return the users with the status code 200
-    return Response.status(200).type(MediaType.APPLICATION_JSON).entity(json).build();
+      // Return the users with the status code 200
+      return Response.status(200).type(MediaType.APPLICATION_JSON).entity(json).build();
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
+      return Response.status(400).entity("Couldn't get all users").build();
+    }
   }
 
   @POST
@@ -101,10 +109,10 @@ public class UserEndpoints {
     User userInDB = UserController.getUserByEmail(userSignedIn.getEmail());
     String json = new Gson().toJson(userInDB);
 
-
-    // Return a response with status 200 and JSON as type
+    hashing.generateSalt(String.valueOf(userInDB.getCreatedTime()));
     if (userInDB.getEmail() != null && userSignedIn.getEmail().equals(userInDB.getEmail()) && hashing.hashWithSalt(userSignedIn.getPassword()).equals((userInDB.getPassword()))) {
 
+      // Return a response with status 200 and JSON as type
       return Response.status(200).entity("Login succesfull" + json).build();
     } else {
       return Response.status(400).entity("Login failed. Try again").build();
@@ -122,11 +130,13 @@ public class UserEndpoints {
     try {
       User userToDelete = new Gson().fromJson(body, User.class);
 
+
       //Gemmer det decodede token i jwt
       DecodedJWT jwt = JWT.decode(userToDelete.getToken());
 
-      if (jwt.getClaim("ID").asInt() == idUser) {
+      if (jwt !=null && jwt.getClaim("ID").asInt() == idUser) {
         UserController.deleteUser(idUser);
+
         userCache.getUsers(true);
 
         // Return a response with status 200 and JSON as type
@@ -149,33 +159,21 @@ public class UserEndpoints {
     try {
       User userUpdates = new Gson().fromJson(userUpdate, User.class);
 
-      UserController.updateUser(userIdToUpdate, userUpdates);
-
       DecodedJWT jwt = JWT.decode(userUpdates.getToken());
 
       // Write to log that we are here
       Log.writeLog(this.getClass().getName(), userIdToUpdate, "Ready to update user", 0);
 
-      if (userIdToUpdate != 0 && jwt.getClaim("id").asInt() == userIdToUpdate) {
+      if (jwt !=null && userIdToUpdate != 0 && jwt.getClaim("id").asInt() == userIdToUpdate) {
 
-//        if (userUpdates.getFirstname() == null) {
-//          .setFirstname(userUpdates.getFirstname());
-//        }
-//        if (userUpdates.getLastname() == null) {
-//          userUpdates.setLastname(currentUser.getLastname());
-//        }
-//        if (userUpdates.getPassword() == null) {
-//          userUpdates.setPassword(currentUser.getPassword());
-//        }
-//        if (userUpdates.getEmail() == null) {
-//          userUpdates.setEmail(currentUser.getEmail());
-//        }
+        userCache.getUsers(true);
+
         // Return a response with status 200 and JSON as type
         return Response.status(200).entity("User with specified ID " + userIdToUpdate + " has been succesfully updated").build();
       }
       } catch (Exception e) {
       System.out.println(e.getMessage());
-      return Response.status(400).entity("User update failed").build();
+      return Response.status(400).entity("User update failed because of missing token").build();
     }
     return null;
   }

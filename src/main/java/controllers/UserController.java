@@ -118,7 +118,7 @@ public class UserController {
 
     hashing.generateSalt(String.valueOf(user.getCreatedTime())); //Så der tildeles et unikt timestamp
     // Insert the user in the DB
-    // TODO: Hash the user password before saving it.
+    // TODO: Hash the user password before saving it. FIXED
     int userID = dbCon.insert(
             "INSERT INTO user(first_name, last_name, password, email, created_at) VALUES('"
                     + user.getFirstname()
@@ -234,6 +234,7 @@ public class UserController {
         userUpdate.setEmail(currentUser.getEmail());
       }
 
+    hashing.generateSalt(String.valueOf(userUpdate.getCreatedTime()));
       //constructing our SQL
     String sql = "UPDATE user SET first_name = '"
             + userUpdate.getFirstname()

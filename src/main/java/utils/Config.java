@@ -20,10 +20,13 @@ public final class Config {
   private static String SOLR_PATH;
   private static String SOLR_CORE;
   private static long CACHE_TTL;
+  private static String ENCRYPTIONKEY;
 
   public static long getCacheTtl() {
     return CACHE_TTL;
   }
+
+  public static String getENCRYPTIONKEY() { return ENCRYPTIONKEY;}
 
   public static String getDatabaseHost() {
     return DATABASE_HOST;
@@ -99,5 +102,6 @@ public final class Config {
     SOLR_PATH = json.get("SOLR_PATH").toString().replace("\"", "");
     SOLR_CORE = json.get("SOLR_CORE").toString().replace("\"", "");
     CACHE_TTL = json.get("CACHE_TTL").getAsLong();
+    ENCRYPTIONKEY = json.get("ENCRYPTIONKEY").getAsString();
   }
 }

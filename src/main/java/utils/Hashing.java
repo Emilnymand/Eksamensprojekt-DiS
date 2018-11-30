@@ -9,7 +9,7 @@ public final class Hashing {
 
   private String generateSalt;
 
-  //Emil - genering af nyt salt
+  //Emil - Generating new salt.
   public void generateSalt (String generateSalt) {
     this.generateSalt = generateSalt;
   }
