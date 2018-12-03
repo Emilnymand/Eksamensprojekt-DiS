@@ -172,6 +172,7 @@ public class UserEndpoints {
     try {
       User userUpdates = new Gson().fromJson(userUpdate, User.class);
 
+      //Emil - Saving decoded token in jwt
       DecodedJWT jwt = JWT.decode(userUpdates.getToken());
 
       //Emil - Checking that the user is who he/she claims to be
