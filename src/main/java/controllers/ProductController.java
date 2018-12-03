@@ -101,6 +101,7 @@ public class ProductController {
     String sql = "SELECT * FROM product";
 
     ResultSet rs = dbCon.query(sql);
+//    ArrayList<Product> products = productCache.getProducts(false);
     ArrayList<Product> products = new ArrayList<Product>();
 
     try {

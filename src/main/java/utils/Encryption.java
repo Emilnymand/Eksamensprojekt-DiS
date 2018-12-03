@@ -11,15 +11,14 @@ public final class Encryption {
       // TODO: Create a more complex code and store it somewhere better - FIXED
 //      char[] key = {'C', 'B', 'S'};
 
-      //Getting encrypted key elsewhere.
+      //Emil - Getting encrypted key elsewhere to make it more secure
       String encryptKey = Config.getENCRYPTIONKEY();
       char[] key = encryptKey.toCharArray();
 
       // Stringbuilder enables you to play around with strings and make useful stuff
       StringBuilder thisIsEncrypted = new StringBuilder();
 
-      // TODO: This is where the magic of XOR is happening. Are you able to explain what is going on?
-      // ^som ligger de binære værdier sammen
+      // TODO: This is where the magic of XOR is happening. Are you able to explain what is going on? - Explained in report
       for (int i = 0; i < rawString.length(); i++) {
         thisIsEncrypted.append((char) (rawString.charAt(i) ^ key[i % key.length]));
       }

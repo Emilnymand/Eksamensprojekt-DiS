@@ -56,7 +56,7 @@ public class UserController {
       System.out.println(ex.getMessage());
     }
 
-    // Return null
+    // Return user
     return user;
   }
 
@@ -116,7 +116,9 @@ public class UserController {
       dbCon = new DatabaseController();
     }
 
-    hashing.generateSalt(String.valueOf(user.getCreatedTime())); //Så der tildeles et unikt timestamp
+    //Emil - Generating unique timestamp
+    hashing.generateSalt(String.valueOf(user.getCreatedTime()));
+
     // Insert the user in the DB
     // TODO: Hash the user password before saving it. FIXED
     int userID = dbCon.insert(
@@ -171,9 +173,11 @@ public class UserController {
                         rs.getString("email"),
                         rs.getLong("created_at")); //Emil - Added created_at, to a timestamp in db.
 
+        //Emil - calling the HMAC256 algorithm
         Algorithm algorithm = Algorithm.HMAC256("Emil");
-        //opretter en token, så man kan finde et ID ud fra en token.
+        //Emil - Creating a token and claims to get a user ID from it.
         String token = JWT.create().withClaim("ID",user.getId()).sign(algorithm);
+        //Emil - Actually setting the token
         user.setToken(token);
 
         // return the create object
@@ -185,10 +189,8 @@ public class UserController {
       System.out.println(ex.getMessage());
     }
 
-    // Return null
+    // Return user
     return user;
-
-
   }
 
   // Emil - Deleting specific user by ID
@@ -201,9 +203,10 @@ public class UserController {
       dbCon = new DatabaseController();
     }
 
-    // Constructing our SQL
+    //Emil - Constructing our SQL
     String sql = "DELETE FROM user where id=" + userId;
 
+    //Emil - Updating in DB
     dbCon.updateDB(sql);
   }
 
@@ -219,8 +222,10 @@ public class UserController {
           dbCon = new DatabaseController();
       }
 
+      //Emil - Getting the user from DB
       User currentUser = UserController.getUser(userIdToUpdate);
 
+      //Emil - setting new specifications from user
       if (userUpdate.getFirstname() == null) {
         userUpdate.setFirstname(currentUser.getFirstname());
       }
@@ -234,9 +239,11 @@ public class UserController {
         userUpdate.setEmail(currentUser.getEmail());
       }
 
-    hashing.generateSalt(String.valueOf(userUpdate.getCreatedTime()));
-      //constructing our SQL
-    String sql = "UPDATE user SET first_name = '"
+      //Emil - Generating unique timestamp
+      hashing.generateSalt(String.valueOf(userUpdate.getCreatedTime()));
+
+      //Emil - constructing our SQL
+      String sql = "UPDATE user SET first_name = '"
             + userUpdate.getFirstname()
             + "', last_name = '"
             + userUpdate.getLastname()
@@ -246,6 +253,7 @@ public class UserController {
             + userUpdate.getEmail()
             + "' Where id = " +userIdToUpdate;
 
+      //Emil - Updating in DB
       dbCon.updateDB(sql);
   }
 

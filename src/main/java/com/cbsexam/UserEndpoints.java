@@ -42,6 +42,7 @@ public class UserEndpoints {
 
       // Return the user with the status code 200
       // TODO: What should happen if something breaks down? - FIXED
+      //Emil - Throws exception
       return Response.status(200).type(MediaType.APPLICATION_JSON_TYPE).entity(json).build();
     } catch (Exception e) {
       System.out.println(e.getMessage());
@@ -54,9 +55,10 @@ public class UserEndpoints {
   @Path("/")
   public Response getUsers() {
 
+    // Write to log that we are here
+    Log.writeLog(this.getClass().getName(), this, "Get all users", 0);
+
     try {
-      // Write to log that we are here
-      Log.writeLog(this.getClass().getName(), this, "Get all users", 0);
 
       // Get a list of users from UserCache
       ArrayList<User> users = userCache.getUsers(false);
@@ -97,7 +99,7 @@ public class UserEndpoints {
     }
   }
 
-  // TODO: Make the system able to login users and assign them a token to use throughout the system.
+  // TODO: Make the system able to login users and assign them a token to use throughout the system. Fixed
   @POST
   @Path("/login")
   @Consumes(MediaType.APPLICATION_JSON)
@@ -106,10 +108,14 @@ public class UserEndpoints {
     User userSignedIn = new Gson().fromJson(body, User.class);
     Hashing hashing = new Hashing();
 
+    //Emil - Getting
     User userInDB = UserController.getUserByEmail(userSignedIn.getEmail());
     String json = new Gson().toJson(userInDB);
 
+    //Emil - Generating unique timestamp
     hashing.generateSalt(String.valueOf(userInDB.getCreatedTime()));
+
+    //Emil - Validating email and password
     if (userInDB.getEmail() != null && userSignedIn.getEmail().equals(userInDB.getEmail()) && hashing.hashWithSalt(userSignedIn.getPassword()).equals((userInDB.getPassword()))) {
 
       // Return a response with status 200 and JSON as type
@@ -130,13 +136,16 @@ public class UserEndpoints {
     try {
       User userToDelete = new Gson().fromJson(body, User.class);
 
-
-      //Gemmer det decodede token i jwt
+      //Emil - Saving decoded token in jwt
       DecodedJWT jwt = JWT.decode(userToDelete.getToken());
 
+      //Emil - Checking that the user is who he/she claims to be
       if (jwt !=null && jwt.getClaim("ID").asInt() == idUser) {
+
+        //Emil - Actually deleting user
         UserController.deleteUser(idUser);
 
+        //Emil - Makes sure to update in DB
         userCache.getUsers(true);
 
         // Return a response with status 200 and JSON as type
@@ -146,7 +155,8 @@ public class UserEndpoints {
       System.out.println(e.getMessage());
       return Response.status(400).entity("Delete of user failed").build();
     }
-    //Hvis brugeren ikke findes
+
+    //Emil - If the user doesn't exist
     return null;
   }
 
@@ -156,16 +166,21 @@ public class UserEndpoints {
   // TODO: Make the system able to update users - Fixed
   public Response updateUser(@PathParam("update") int userIdToUpdate, String userUpdate) {
 
+    // Write to log that we are here
+    Log.writeLog(this.getClass().getName(), userIdToUpdate, "Ready to update user", 0);
+
     try {
       User userUpdates = new Gson().fromJson(userUpdate, User.class);
 
       DecodedJWT jwt = JWT.decode(userUpdates.getToken());
 
-      // Write to log that we are here
-      Log.writeLog(this.getClass().getName(), userIdToUpdate, "Ready to update user", 0);
-
+      //Emil - Checking that the user is who he/she claims to be
       if (jwt !=null && userIdToUpdate != 0 && jwt.getClaim("id").asInt() == userIdToUpdate) {
 
+        //Emil - Actually updating user
+        UserController.updateUser(userIdToUpdate, userUpdates);
+
+        //Emil - Makes sure to update in DB
         userCache.getUsers(true);
 
         // Return a response with status 200 and JSON as type

@@ -129,7 +129,7 @@ public class OrderController {
       dbCon = new DatabaseController();
     }
 
-    //Emil - Try catch til sikring af korrekt data før der laves commit.
+    //Emil - Making sure data is correct before a commit is made
     try {
       DatabaseController.getConnection().setAutoCommit(false);
 
@@ -175,7 +175,7 @@ public class OrderController {
       order.setLineItems(items);
     } catch (SQLException e) {
       try {
-        //Google rollback, som lukker forbindelsen til databasen.
+        //Emil - Google rollback to close the connection to DB
         DatabaseController.getConnection().rollback();
       } catch (SQLException e2) {
         e2.printStackTrace();
@@ -183,7 +183,7 @@ public class OrderController {
 
       finally {
         try {
-          //Sætter autocommit til true, så andre metoder igen kan virke. 
+          //Emil - Making autocommit to "true" so the commit will be made and other methods will work
           DatabaseController.getConnection().setAutoCommit(true);
         } catch (SQLException e3) {
           e3.printStackTrace();

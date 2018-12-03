@@ -14,14 +14,15 @@ public final class Hashing {
     this.generateSalt = generateSalt;
   }
 
-  // TODO: You should add a salt and make this secure : Fixed
-  // Emil - Static so all classes can acces it.
+  // TODO: You should add a salt and make this secure - Fixed
+  // Emil - Adding a salt and makes it more secure
   public String hashWithSalt(String str){
     String saltedstr = str + generateSalt;
     return md5(saltedstr);
   }
 
 
+  //Emil - Using the md5 method
   public static String md5(String rawString) {
     try {
 
@@ -51,7 +52,7 @@ public final class Hashing {
     return null;
   }
 
-  // TODO: You should add a salt and make this secure
+  // TODO: You should add a salt and make this secure - Using MD5 instead
   public static String sha(String rawString) {
     try {
       // We load the hashing algoritm we wish to use.
