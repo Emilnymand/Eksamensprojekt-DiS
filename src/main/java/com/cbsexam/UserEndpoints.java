@@ -170,16 +170,17 @@ public class UserEndpoints {
     Log.writeLog(this.getClass().getName(), userIdToUpdate, "Ready to update user", 0);
 
     try {
-      User userUpdates = new Gson().fromJson(userUpdate, User.class);
+      User userToUpdate = new Gson().fromJson(userUpdate, User.class);
 
       //Emil - Saving decoded token in jwt
-      DecodedJWT jwt = JWT.decode(userUpdates.getToken());
+      DecodedJWT jwt = JWT.decode(userToUpdate.getToken());
+      System.out.println(jwt);
 
       //Emil - Checking that the user is who he/she claims to be
-      if (jwt !=null && userIdToUpdate != 0 && jwt.getClaim("id").asInt() == userIdToUpdate) {
+      if (jwt !=null && userIdToUpdate != 0 && jwt.getClaim("ID").asInt() == userIdToUpdate) {
 
         //Emil - Actually updating user
-        UserController.updateUser(userIdToUpdate, userUpdates);
+        UserController.updateUser(userIdToUpdate, userToUpdate);
 
         //Emil - Makes sure to update in DB
         userCache.getUsers(true);
