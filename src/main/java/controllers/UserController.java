@@ -234,13 +234,15 @@ public class UserController {
       }
       if (userUpdate.getPassword() == null) {
         userUpdate.setPassword(currentUser.getPassword());
+      } else {
+        //Emil - Generating unique timestamp
+        hashing.generateSalt(String.valueOf(userUpdate.getCreatedTime()));
+        userUpdate.setPassword(hashing.hashWithSalt(userUpdate.getPassword()));
       }
       if (userUpdate.getEmail() == null) {
         userUpdate.setEmail(currentUser.getEmail());
       }
 
-      //Emil - Generating unique timestamp
-      hashing.generateSalt(String.valueOf(userUpdate.getCreatedTime()));
 
       //Emil - constructing our SQL
       String sql = "UPDATE user SET first_name = '"
@@ -248,10 +250,10 @@ public class UserController {
             + "', last_name = '"
             + userUpdate.getLastname()
             + "', password= '"
-            + hashing.hashWithSalt(userUpdate.getPassword())
+            + userUpdate.getPassword()
             + "', email = '"
             + userUpdate.getEmail()
-            + "' Where id = " +userIdToUpdate;
+            + "' Where id = " + userIdToUpdate;
 
       //Emil - Updating in DB
       dbCon.updateDB(sql);

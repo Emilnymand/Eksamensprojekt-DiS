@@ -174,7 +174,6 @@ public class UserEndpoints {
 
       //Emil - Saving decoded token in jwt
       DecodedJWT jwt = JWT.decode(userToUpdate.getToken());
-      System.out.println(jwt);
 
       //Emil - Checking that the user is who he/she claims to be
       if (jwt !=null && userIdToUpdate != 0 && jwt.getClaim("ID").asInt() == userIdToUpdate) {
@@ -186,7 +185,7 @@ public class UserEndpoints {
         userCache.getUsers(true);
 
         // Return a response with status 200 and JSON as type
-        return Response.status(200).entity("User with specified ID " + userIdToUpdate + " has been succesfully updated").build();
+        return Response.status(200).type(MediaType.APPLICATION_JSON_TYPE).entity("User with specified ID " + userIdToUpdate + " has been succesfully updated").build();
       }
       } catch (Exception e) {
       System.out.println(e.getMessage());
