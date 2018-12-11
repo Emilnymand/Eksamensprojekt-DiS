@@ -77,7 +77,7 @@ public class OrderController {
       dbCon = new DatabaseController();
     }
 
-    String sql = "SELECT * FROM order";
+    String sql = "SELECT * FROM orders";
 
     ResultSet rs = dbCon.query(sql);
     ArrayList<Order> orders = new ArrayList<Order>();
@@ -118,7 +118,7 @@ public class OrderController {
   public static Order createOrder(Order order) {
 
     // Write in log that we've reach this step
-    Log.writeLog(OrderController.class.getName(), order, "Actually creating a order in DB", 0);
+    Log.writeLog(OrderController.class.getName(), order, "Trying to create an order in DB", 0);
 
     // Set creation and updated time for order.
     order.setCreatedAt(System.currentTimeMillis() / 1000L);

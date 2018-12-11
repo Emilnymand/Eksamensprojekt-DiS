@@ -177,7 +177,7 @@ public class UserController {
         Algorithm algorithm = Algorithm.HMAC256("Emil");
         //Emil - Creating a token and claims to get a user ID from it.
         String token = JWT.create().withClaim("ID",user.getId()).sign(algorithm);
-        //Emil - Actually setting the token
+        //Emil - Actually setting the token at the user-object
         user.setToken(token);
 
         // return the create object

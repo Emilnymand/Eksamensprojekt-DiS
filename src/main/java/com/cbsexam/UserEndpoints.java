@@ -53,26 +53,55 @@ public class UserEndpoints {
   /** @return Responses */
   @GET
   @Path("/")
-  public Response getUsers() {
+  @Consumes(MediaType.APPLICATION_JSON)
+  public Response getUsers(String body) {
 
     // Write to log that we are here
     Log.writeLog(this.getClass().getName(), this, "Get all users", 0);
 
     try {
+      //Emil - Validating the user to make sure the data isn't readable for everyone
+      User validateUser = new Gson().fromJson(body, User.class);
 
-      // Get a list of users from UserCache
+      //Emil - Saving decoded token in jwt
+      DecodedJWT jwt = JWT.decode(validateUser.getToken());
+
+      //Emil - Adding a boolean to use further down
+      boolean enableEncryption = true;
+
+      //Emil -  Get a list of users from UserCache
       ArrayList<User> users = userCache.getUsers(false);
+
+      //Emil - Checking that token matches
+      for (User user : users){
+        if (jwt!= null && jwt.getClaim("ID").asInt() == user.getId()){
+          //Emil - If token matches encryption disables
+          enableEncryption = false;
+        }
+      }
 
       // TODO: Add Encryption to JSON : Fixed
       // Transfer users to json in order to return it to the user
       String json = new Gson().toJson(users);
+
+      //Emil - If token doesn't match, encryption enables
+      if (enableEncryption){
       json = Encryption.encryptDecryptXOR(json);
+      }
 
       // Return the users with the status code 200
       return Response.status(200).type(MediaType.APPLICATION_JSON).entity(json).build();
     } catch (Exception e) {
       System.out.println(e.getMessage());
-      return Response.status(400).entity("Couldn't get all users").build();
+
+      ArrayList<User> users = userCache.getUsers(false);
+
+      String json = new Gson().toJson(users);
+
+      json = Encryption.encryptDecryptXOR(json);
+
+      return Response.status(400).type(MediaType.APPLICATION_JSON).entity(json).build();
+//      return Response.status(400).entity("Couldn't get all users").build();
     }
   }
 
@@ -128,28 +157,33 @@ public class UserEndpoints {
   // TODO: Make the system able to delete users - Fixed
   @POST
   @Path("/delete/{delete}")
-  public Response deleteUser(@PathParam("delete") int idUser, String body) {
+  public Response deleteUser(String userDelete) {
 
     // Write to log that we are here
-    Log.writeLog(this.getClass().getName(),idUser, "Ready to delete user", 0);
+    Log.writeLog(this.getClass().getName(),userDelete, "Ready to delete user", 0);
 
     try {
-      User userToDelete = new Gson().fromJson(body, User.class);
+      User userToDelete = new Gson().fromJson(userDelete, User.class);
 
       //Emil - Saving decoded token in jwt
       DecodedJWT jwt = JWT.decode(userToDelete.getToken());
 
-      //Emil - Checking that the user is who he/she claims to be
-      if (jwt !=null && jwt.getClaim("ID").asInt() == idUser) {
+      // Get a list of users from UserCache
+      ArrayList<User> users = userCache.getUsers(false);
 
-        //Emil - Actually deleting user
-        UserController.deleteUser(idUser);
+      for (User user : users) {
+        //Emil - Checking that the user is who he/she claims to be
+        if (jwt !=null && jwt.getClaim("ID").asInt() == user.getId()) {
 
-        //Emil - Makes sure to update in DB
-        userCache.getUsers(true);
+          //Emil - Actually deleting user
+          UserController.deleteUser(user.getId());
 
-        // Return a response with status 200 and JSON as type
-        return Response.status(200).entity("User with specified ID " + idUser + " has been deleted").build();
+          //Emil - Makes sure to update in DB
+          userCache.getUsers(true);
+
+          // Return a response with status 200 and JSON as type
+          return Response.status(200).entity("User with specified ID " + user.getId() + " has been deleted").build();
+      }
       }
     } catch (Exception e) {
       System.out.println(e.getMessage());
@@ -161,13 +195,13 @@ public class UserEndpoints {
   }
 
   @POST
-  @Path("/update/{update}")
+  @Path("/update/")
   @Consumes(MediaType.APPLICATION_JSON)
   // TODO: Make the system able to update users - Fixed
-  public Response updateUser(@PathParam("update") int userIdToUpdate, String userUpdate) {
+  public Response updateUser(String userUpdate) {
 
     // Write to log that we are here
-    Log.writeLog(this.getClass().getName(), userIdToUpdate, "Ready to update user", 0);
+    Log.writeLog(this.getClass().getName(), userUpdate, "Ready to update user", 0);
 
     try {
       User userToUpdate = new Gson().fromJson(userUpdate, User.class);
@@ -175,22 +209,27 @@ public class UserEndpoints {
       //Emil - Saving decoded token in jwt
       DecodedJWT jwt = JWT.decode(userToUpdate.getToken());
 
-      //Emil - Checking that the user is who he/she claims to be
-      if (jwt !=null && userIdToUpdate != 0 && jwt.getClaim("ID").asInt() == userIdToUpdate) {
+      // Get a list of users from UserCache
+      ArrayList<User> users = userCache.getUsers(false);
 
-        //Emil - Actually updating user
-        UserController.updateUser(userIdToUpdate, userToUpdate);
+      for (User user : users) {
+        //Emil - Checking that the user is who he/she claims to be
+        if (jwt != null && jwt.getClaim("ID").asInt() == user.getId()) {
 
-        //Emil - Makes sure to update in DB
-        userCache.getUsers(true);
+          //Emil - Actually updating user
+          UserController.updateUser(user.getId(), userToUpdate);
 
-        // Return a response with status 200 and JSON as type
-        return Response.status(200).type(MediaType.APPLICATION_JSON_TYPE).entity("User with specified ID " + userIdToUpdate + " has been succesfully updated").build();
+          //Emil - Makes sure to update in DB
+          userCache.getUsers(true);
+
+          // Return a response with status 200 and JSON as type
+          return Response.status(200).type(MediaType.APPLICATION_JSON_TYPE).entity("User with specified ID " + user.getId() + " has been succesfully updated").build();
+        }
+        }
+      } catch(Exception e){
+        System.out.println(e.getMessage());
+        return Response.status(400).entity("User update failed because of missing token").build();
       }
-      } catch (Exception e) {
-      System.out.println(e.getMessage());
-      return Response.status(400).entity("User update failed because of missing token").build();
+      return null;
     }
-    return null;
-  }
 }
