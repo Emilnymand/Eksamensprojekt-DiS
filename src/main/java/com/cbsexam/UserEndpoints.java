@@ -4,6 +4,7 @@ import cache.UserCache;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.google.gson.Gson;
+import controllers.ProductController;
 import controllers.UserController;
 import java.util.ArrayList;
 import javax.ws.rs.Consumes;
@@ -13,6 +14,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import model.Product;
 import model.User;
 import utils.Encryption;
 import utils.Hashing;
@@ -29,35 +32,7 @@ public class UserEndpoints {
    */
   @GET
   @Path("/{idUser}")
-  public Response getUser(@PathParam("idUser") int idUser) {
-
-    try {
-      // Use the ID to get the user from the controller.
-      User user = UserController.getUser(idUser);
-
-      // TODO: Add Encryption to JSON : Fixed
-      // Convert the user object to json in order to return the object
-      String json = new Gson().toJson(user);
-      json = Encryption.encryptDecryptXOR(json);
-
-      // Return the user with the status code 200
-      // TODO: What should happen if something breaks down? - FIXED
-      //Emil - Throws exception
-      return Response.status(200).type(MediaType.APPLICATION_JSON_TYPE).entity(json).build();
-    } catch (Exception e) {
-      System.out.println(e.getMessage());
-      return Response.status(400).entity("Couldn't get user").build();
-    }
-  }
-
-  /** @return Responses */
-  @GET
-  @Path("/")
-  @Consumes(MediaType.APPLICATION_JSON)
-  public Response getUsers(String body) {
-
-    // Write to log that we are here
-    Log.writeLog(this.getClass().getName(), this, "Get all users", 0);
+  public Response getUser(@PathParam("idUser") int idUser, String body) {
 
     try {
       //Emil - Validating the user to make sure the data isn't readable for everyone
@@ -79,29 +54,58 @@ public class UserEndpoints {
           enableEncryption = false;
         }
       }
+      // Use the ID to get the user from the controller.
+      User user = UserController.getUser(idUser);
+
+      // TODO: Add Encryption to JSON : Fixed
+      // Convert the user object to json in order to return the object
+      String json = new Gson().toJson(user);
+
+      //Emil - If token doesn't match, encryption enables
+      if (enableEncryption) {
+        json = Encryption.encryptDecryptXOR(json);
+      }
+
+      // Return the user with the status code 200
+      // TODO: What should happen if something breaks down? - FIXED
+      //Emil - Throws exception
+      return Response.status(200).type(MediaType.APPLICATION_JSON_TYPE).entity(json).build();
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
+
+      User user = UserController.getUser(idUser);
+      String json = new Gson().toJson(user);
+
+      json = Encryption.encryptDecryptXOR(json);
+
+      return Response.status(400).type(MediaType.APPLICATION_JSON).entity(json).build();
+    }
+  }
+
+  /** @return Responses */
+  @GET
+  @Path("/")
+  @Consumes(MediaType.APPLICATION_JSON)
+  public Response getUsers(String body) {
+
+    // Write to log that we are here
+    Log.writeLog(this.getClass().getName(), this, "Get all users", 0);
+
+    try {
+      //Emil -  Get a list of users from UserCache
+      ArrayList<User> users = userCache.getUsers(false);
 
       // TODO: Add Encryption to JSON : Fixed
       // Transfer users to json in order to return it to the user
       String json = new Gson().toJson(users);
 
-      //Emil - If token doesn't match, encryption enables
-      if (enableEncryption){
       json = Encryption.encryptDecryptXOR(json);
-      }
 
       // Return the users with the status code 200
       return Response.status(200).type(MediaType.APPLICATION_JSON).entity(json).build();
     } catch (Exception e) {
       System.out.println(e.getMessage());
-
-      ArrayList<User> users = userCache.getUsers(false);
-
-      String json = new Gson().toJson(users);
-
-      json = Encryption.encryptDecryptXOR(json);
-
-      return Response.status(400).type(MediaType.APPLICATION_JSON).entity(json).build();
-//      return Response.status(400).entity("Couldn't get all users").build();
+      return Response.status(400).entity("Couldn't get all users").build();
     }
   }
 
