@@ -160,11 +160,11 @@ public class UserEndpoints {
 
   // TODO: Make the system able to delete users - Fixed
   @POST
-  @Path("/delete/{delete}")
+  @Path("/delete")
   public Response deleteUser(String userDelete) {
 
     // Write to log that we are here
-    Log.writeLog(this.getClass().getName(),userDelete, "Ready to delete user", 0);
+    Log.writeLog(this.getClass().getName(), userDelete, "Ready to delete user", 0);
 
     try {
       User userToDelete = new Gson().fromJson(userDelete, User.class);
@@ -177,7 +177,7 @@ public class UserEndpoints {
 
       for (User user : users) {
         //Emil - Checking that the user is who he/she claims to be
-        if (jwt !=null && jwt.getClaim("ID").asInt() == user.getId()) {
+        if (jwt != null && jwt.getClaim("ID").asInt() == user.getId()) {
 
           //Emil - Actually deleting user
           UserController.deleteUser(user.getId());
@@ -187,13 +187,12 @@ public class UserEndpoints {
 
           // Return a response with status 200 and JSON as type
           return Response.status(200).entity("User with specified ID " + user.getId() + " has been deleted").build();
-      }
+        }
       }
     } catch (Exception e) {
       System.out.println(e.getMessage());
       return Response.status(400).entity("Delete of user failed").build();
     }
-
     //Emil - If the user doesn't exist
     return null;
   }
