@@ -25,6 +25,8 @@ public class UserCache {
     public ArrayList<User> getUsers(Boolean forceUpdate) {
 
         if (forceUpdate
+                //Emil - Changed greather than or equal sign, so the cache lives at least ttl/1000L if no further changes.
+                //currentTimeMillis gets the exact time right now
                 ||((this.created + ttl) <= (System.currentTimeMillis() / 1000L))
                 || this.users.isEmpty()) {
 

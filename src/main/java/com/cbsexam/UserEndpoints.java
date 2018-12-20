@@ -73,8 +73,9 @@ public class UserEndpoints {
     } catch (Exception e) {
       System.out.println(e.getMessage());
 
-      User user = UserController.getUser(idUser);
-      String json = new Gson().toJson(user);
+      ArrayList<User> users = userCache.getUsers(false);
+
+      String json = new Gson().toJson(users);
 
       json = Encryption.encryptDecryptXOR(json);
 

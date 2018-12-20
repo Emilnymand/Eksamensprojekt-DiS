@@ -71,8 +71,9 @@ public class ProductEndpoints {
     } catch (Exception e) {
       System.out.println(e.getMessage());
 
-      Product product = ProductController.getProduct(idProduct);
-      String json = new Gson().toJson(product);
+      ArrayList<Product> products = productCache.getProducts(false);
+
+      String json = new Gson().toJson(products);
 
       json = Encryption.encryptDecryptXOR(json);
 
