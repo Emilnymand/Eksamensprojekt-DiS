@@ -10,13 +10,13 @@ public final class Hashing {
   private String generateSalt;
 
   //Emil - Generating new salt.
-  public void generateSalt (String generateSalt) {
+  public void generateSalt(String generateSalt) {
     this.generateSalt = generateSalt;
   }
 
   // TODO: You should add a salt and make this secure - Fixed
   // Emil - Adding a salt and makes it more secure
-  public String hashWithSalt(String str){
+  public String hashWithSalt(String str) {
     String saltedstr = str + generateSalt;
     return md5(saltedstr);
   }
@@ -50,27 +50,5 @@ public final class Hashing {
     }
 
     return null;
-  }
-
-  // TODO: You should add a salt and make this secure - Using MD5 instead
-  public static String sha(String rawString) {
-    try {
-      // We load the hashing algoritm we wish to use.
-      MessageDigest digest = MessageDigest.getInstance("SHA-256");
-
-      // We convert to byte array
-      byte[] hash = digest.digest(rawString.getBytes(StandardCharsets.UTF_8));
-
-      // We create the hashed string
-      String sha256hex = new String(Hex.encode(hash));
-
-      // And return the string
-      return sha256hex;
-
-    } catch (NoSuchAlgorithmException e) {
-      e.printStackTrace();
-    }
-
-    return rawString;
   }
 }
